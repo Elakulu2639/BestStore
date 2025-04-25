@@ -1,0 +1,130 @@
+﻿@model DashboardVM
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Admin Dashboard</h2>
+
+    <!-- Metrics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Revenue</h5>
+                    <h4>@Model.TotalRevenue.ToString("C")</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Orders</h5>
+                    <h4>@Model.TotalOrders</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Avg. Order Value</h5>
+                    <h4>@Model.AverageOrderValue.ToString("C")</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sales Chart -->
+    <div class="card mb-4">
+        <div class="card-header">
+            Sales Over Time (Last 30 Days)
+        </div>
+        <div class="card-body">
+            <canvas id="salesChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Recent Orders -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    Recent Orders
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    #@order.Id - @order.CreatedAt.ToString("g")
+                                </div>
+                                <div>
+                                    @order.Items.Sum(i => i.Quantity * i.UnitPrice).ToString("C")
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <!-- Top Products -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    Top Selling Products
+                </div>
+                <ul class="list-group list-group-flush">
+                    @foreach (var product in Model.TopProducts)
+                    {
+                        <li class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>@product.Product.Name</div>
+                                <div>@product.TotalSold sold</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sales Chart
+        const ctx = document.getElementById('salesChart');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.SalesOverTime.Select(s => s.Period))),
+                datasets: [{
+                    label: 'Daily Sales',
+                    data: @Html.Raw(Json.Serialize(Model.SalesOverTime.Select(s => s.Amount))),
+                    borderColor: '#4e73df',
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}
