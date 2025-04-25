@@ -1,0 +1,39 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Visual Studio files
+*.user
+*.userosscache
+*.suo
+*.vs/
+*.vscode/
+
+# Build results
+bin/
+obj/
+out/
+
+# Resharper
+*.resharper
+*.resharper.user
+
+# ASP.NET Core
+appsettings.json
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Staging.json
+
+# NuGet Packages
+*.nupkg
+
+# Logs
+*.log
+
+# Environment variables
+.env
+
+# Local settings
+local.settings.json
