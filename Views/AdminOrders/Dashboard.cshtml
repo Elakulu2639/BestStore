@@ -8,7 +8,7 @@
 
     <!-- Metrics Cards -->
     <div class="row mb-4">
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-primary text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Revenue</h5>
@@ -16,7 +16,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-success text-white">
                 <div class="card-body">
                     <h5 class="card-title">Total Orders</h5>
@@ -24,7 +24,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
+        <div class="col-md-3 mb-3">
             <div class="card bg-info text-white">
                 <div class="card-body">
                     <h5 class="card-title">Avg. Order Value</h5>
@@ -32,20 +32,59 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Sales Chart -->
-    <div class="card mb-4">
-        <div class="card-header">
-            Sales Over Time (Last 30 Days)
-        </div>
-        <div class="card-body">
-            <canvas id="salesChart" height="100"></canvas>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-dark">
+                <div class="card-body">
+                    <h5 class="card-title">Active Clients</h5>
+                    <h4>@Model.ActiveClients</h4>
+                </div>
+            </div>
         </div>
     </div>
 
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <!-- Sales Chart -->
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header">
+                    Sales Over Time (Last 30 Days)
+                </div>
+                <div class="card-body">
+                    <canvas id="salesChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Segmentation -->
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    Customer Types
+                </div>
+                <div class="card-body">
+                    <canvas id="customerChart" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Status Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    Order Status Distribution
+                </div>
+                <div class="card-body">
+                    <canvas id="orderStatusChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Orders & Top Products -->
     <div class="row">
-        <!-- Recent Orders -->
         <div class="col-md-6">
             <div class="card mb-4">
                 <div class="card-header">
@@ -57,10 +96,16 @@
                         <li class="list-group-item">
                             <div class="d-flex justify-content-between">
                                 <div>
-                                    #@order.Id - @order.CreatedAt.ToString("g")
+                                    <strong>Order #@order.Id</strong><br>
+                                    <small class="text-muted">
+                                        @order.Client.UserName<br>
+                                        @order.CreatedAt.ToString("g")
+                                    </small>
                                 </div>
-                                <div>
-                                    @order.Items.Sum(i => i.Quantity * i.UnitPrice).ToString("C")
+                                <div class="text-end">
+                                    @order.Items.Sum(i => i.Quantity * i.UnitPrice).ToString("C")<br>
+                                    <span class="badge bg-secondary">@order.OrderStatus</span><br>
+                                    <small class="text-muted">@order.PaymentMethod</small>
                                 </div>
                             </div>
                         </li>
@@ -69,19 +114,24 @@
             </div>
         </div>
 
-        <!-- Top Products -->
         <div class="col-md-6">
             <div class="card">
                 <div class="card-header">
-                    Top Selling Products
+                    Top Products
                 </div>
                 <ul class="list-group list-group-flush">
                     @foreach (var product in Model.TopProducts)
                     {
                         <li class="list-group-item">
-                            <div class="d-flex justify-content-between">
-                                <div>@product.Product.Name</div>
-                                <div>@product.TotalSold sold</div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@product.Product.Name</strong><br>
+                                    <small class="text-muted">@product.Product.Category</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="badge bg-primary">@product.TotalSold sold</span><br>
+                                    <small class="text-success">@product.TotalRevenue.ToString("C")</small>
+                                </div>
                             </div>
                         </li>
                     }
@@ -95,8 +145,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         // Sales Chart
-        const ctx = document.getElementById('salesChart');
-        new Chart(ctx, {
+        const salesCtx = document.getElementById('salesChart');
+        new Chart(salesCtx, {
             type: 'line',
             data: {
                 labels: @Html.Raw(Json.Serialize(Model.SalesOverTime.Select(s => s.Period))),
@@ -109,22 +159,61 @@
             },
             options: {
                 responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    }
-                },
                 scales: {
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: function(value) {
-                                return '$' + value;
-                            }
+                            callback: value => '$' + value
+                        }
+                    }
+                }
+            }
+        });
+
+        // Customer Chart
+        const custCtx = document.getElementById('customerChart');
+        new Chart(custCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['New Customers', 'Repeat Customers', 'High Value'],
+                datasets: [{
+                    data: @Html.Raw(Json.Serialize(new[] {
+                    Model.NewCustomers,
+                    Model.RepeatCustomers,
+                    Model.HighValueCustomers
+                })),
+                    backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e']
+                }]
+            }
+        });
+
+        // Order Status Chart
+        const statusCtx = document.getElementById('orderStatusChart');
+        new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(Json.Serialize(Model.OrderStatusDistribution.Select(s => s.Status))),
+                datasets: [{
+                    label: 'Orders',
+                    data: @Html.Raw(Json.Serialize(Model.OrderStatusDistribution.Select(s => s.Count))),
+                    backgroundColor: '#36b9cc'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
                         }
                     }
                 }
             }
         });
     </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+ 
 }

@@ -1,82 +1,157 @@
-﻿@model RegisterDto
+﻿@model BestStore.Models.RegisterDto
+
 @{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row">
-    <div class="col-lg-6 mx-auto rounded border p-4">
-        <h2 class="text-center mb-3">Register</h2>
-        <hr />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title text-center mb-0">Register</h3>
+                </div>
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "needs-validation", novalidate = "true" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
 
-        <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.FirstName, new { @class = "form-label fw-bold" })
+                                    <span class="text-danger">*</span>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control form-control-lg", placeholder = "Enter first name" })
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    @Html.LabelFor(m => m.LastName, new { @class = "form-label fw-bold" })
+                                    <span class="text-danger">*</span>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-user"></i>
+                                        </span>
+                                        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control form-control-lg", placeholder = "Enter last name" })
+                                    </div>
+                                    @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
 
-        <form method="post">
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">First Name*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" asp-for="FirstName">
-                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                        <div class="form-group mb-4">
+                            @Html.LabelFor(m => m.Email, new { @class = "form-label fw-bold" })
+                            <span class="text-danger">*</span>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-envelope"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.Email, new { @class = "form-control form-control-lg", placeholder = "Enter your email" })
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-4">
+                            @Html.LabelFor(m => m.PhoneNumber, new { @class = "form-label fw-bold" })
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-phone"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control form-control-lg", placeholder = "Enter phone number" })
+                            </div>
+                            @Html.ValidationMessageFor(m => m.PhoneNumber, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-4">
+                            @Html.LabelFor(m => m.Address, new { @class = "form-label fw-bold" })
+                            <span class="text-danger">*</span>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-address-card"></i>
+                                </span>
+                                @Html.TextBoxFor(m => m.Address, new { @class = "form-control form-control-lg", placeholder = "Enter address" })
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-4">
+                            @Html.LabelFor(m => m.Password, new { @class = "form-label fw-bold" })
+                            <span class="text-danger">*</span>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                @Html.PasswordFor(m => m.Password, new { @class = "form-control form-control-lg", placeholder = "Create password", id = "Password" })
+                                <button type="button" class="btn btn-outline-secondary toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="form-group mb-4">
+                            @Html.LabelFor(m => m.ConfirmPassword, new { @class = "form-label fw-bold" })
+                            <span class="text-danger">*</span>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="fas fa-lock"></i>
+                                </span>
+                                @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control form-control-lg", placeholder = "Confirm password", id = "ConfirmPassword" })
+                                <button type="button" class="btn btn-outline-secondary toggle-password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6 d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg shadow">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </button>
+                            </div>
+                            <div class="col-md-6 d-grid">
+                                <a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index" role="button">
+                                    Cancel
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <p class="mb-0">
+                                Already have an account?
+                                @Html.ActionLink("Login here", "Login", "Account", null, new { @class = "text-decoration-none fw-bold" })
+                            </p>
+                        </div>
+                    }
                 </div>
             </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Last Name*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" asp-for="LastName">
-                    <span asp-validation-for="LastName" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Email*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" asp-for="Email">
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Phone</label>
-                <div class="col-sm-8">
-                    <input class="form-control" asp-for="PhoneNumber">
-                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Address*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" asp-for="Address">
-                    <span asp-validation-for="Address" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Password*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" type="password" asp-for="Password">
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-            </div>
-
-            <div class="row mb-3">
-                <label class="col-sm-4 col-form-label">Confirm Password*</label>
-                <div class="col-sm-8">
-                    <input class="form-control" type="password" asp-for="ConfirmPassword">
-                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-                </div>
-            </div>
-
-
-            <div class="row mb-3">
-                <div class="offset-sm-4 col-sm-4 d-grid">
-                    <button type="submit" class="btn btn-primary">Register</button>
-                </div>
-                <div class="col-sm-4 d-grid">
-                    <a class="btn btn-outline-primary" asp-controller="Home" asp-action="Index" role="button">
-                        Cancel
-                    </a>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Password toggle functionality
+            document.querySelectorAll('.toggle-password').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const inputId = this.parentElement.querySelector('input').id;
+                    const passwordInput = document.querySelector(`#${inputId}`);
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.querySelector('i').classList.toggle('fa-eye');
+                    this.querySelector('i').classList.toggle('fa-eye-slash');
+                });
+            });
+        });
+    </script>
+}

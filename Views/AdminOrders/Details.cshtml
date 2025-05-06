@@ -1,286 +1,266 @@
 ﻿@model Order
 @{
-    string paymentBadgeColor = "bg-danger";
-    if (Model.PaymentStatus == "pending")
+    // Modernized status badge logic using switch expressions
+    var paymentBadge = Model.PaymentStatus switch
     {
-        paymentBadgeColor = "bg-warning text-dark";
-    }
-    else if (Model.PaymentStatus == "accepted")
-    {
-        paymentBadgeColor = "bg-success";
-    }
-    else if (Model.PaymentStatus == "canceled")
-    {
-        paymentBadgeColor = "bg-secondary";
-    }
+        "pending" => "bg-warning text-dark",
+        "accepted" => "bg-success",
+        "canceled" => "bg-secondary",
+        _ => "bg-danger"
+    };
 
-
-    string orderBadgeColor = "bg-danger";
-    if (Model.OrderStatus == "created")
+    var orderBadge = Model.OrderStatus switch
     {
-        orderBadgeColor = "bg-warning text-dark";
-    }
-    else if (Model.OrderStatus == "accepted")
-    {
-        orderBadgeColor = "bg-success";
-    }
-    else if (Model.OrderStatus == "canceled")
-    {
-        orderBadgeColor = "bg-secondary";
-    }
-    else if (Model.OrderStatus == "shipped")
-    {
-        orderBadgeColor = "bg-primary";
-    }
-    else if (Model.OrderStatus == "delivered")
-    {
-        orderBadgeColor = "bg-success";
-    }
-    else if (Model.OrderStatus == "returned")
-    {
-        orderBadgeColor = "bg-info text-dark";
-    }
-    else if (Model.OrderStatus == "deleted")
-    {
-        orderBadgeColor = "bg-dark";
-    }
+        "created" => "bg-warning text-dark",
+        "accepted" => "bg-success",
+        "shipped" => "bg-primary",
+        "delivered" => "bg-success",
+        "returned" => "bg-info text-dark",
+        "deleted" => "bg-dark",
+        "canceled" => "bg-secondary",
+        _ => "bg-danger"
+    };
 }
 
-
-
-<h3 class="text-center mb-4">Order Details</h3>
-
-<a class="btn btn-link" asp-controller="AdminOrders" asp-action="Index">Orders</a>
-
-<div class="row mb-4">
-    <div class="col-lg-6">
-        <div class="border rounded py-3 px-4 h-100">
-            <h3 class="mb-4">Order</h3>
-
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Order ID</div>
-                <div class="col">@Model.Id</div>
-            </div>
-
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Delivery Address</div>
-                <div class="col">@Model.DeliveryAddress</div>
-            </div>
-
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Payment Method</div>
-                <div class="col">@Model.PaymentMethod</div>
-            </div>
-
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Payment Status</div>
-                <div class="col">
-                    <span class="badge rounded-pill @paymentBadgeColor">@Model.PaymentStatus</span>
-                    <a href="#" class="mx-2" data-bs-toggle="modal" data-bs-target="#paymentStatusModal">
-                        Edit
-                    </a>
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#paymentDetailsModal">
-                        Details
-                    </a>
-
-                </div>
-            </div>
-
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Order Status</div>
-                <div class="col">
-                    <span class="badge rounded-pill @orderBadgeColor">@Model.OrderStatus</span>
-                    <a href="#" class="ms-2" data-bs-toggle="modal" data-bs-target="#orderStatusModal">
-                        Edit
-                    </a>
-                </div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col">Order Date</div>
-                <div class="col">@Model.CreatedAt</div>
-            </div>
-        </div>
+<div class="container-lg">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-primary">Order Details</h3>
+        <a class="btn btn-outline-secondary" asp-controller="AdminOrders" asp-action="Index">
+            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+        </a>
     </div>
-    <div class="col-lg-6">
-        <div class="border rounded py-3 px-4 h-100">
-            <h3 class="mb-4">Client</h3>
 
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Name</div>
-                <div class="col">
-                    <a asp-controller="Users"
-                       asp-action="Details" asp-route-id="@Model.Client.Id">
-                        @(Model.Client.FirstName + " " + Model.Client.LastName)
-                    </a>
+    <!-- Main Content Grid -->
+    <div class="row g-4">
+        <!-- Order Details Card -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light py-3">
+                    <h5 class="card-title mb-0"><i class="fas fa-receipt me-2"></i>Order Information</h5>
                 </div>
-            </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Order ID</dt>
+                        <dd class="col-sm-8">#@Model.Id</dd>
 
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">N° Orders</div>
-                <div class="col">
-                    @ViewBag.NumOrders
-                </div>
-            </div>
+                        <dt class="col-sm-4 text-muted">Delivery Address</dt>
+                        <dd class="col-sm-8">@Model.DeliveryAddress</dd>
 
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Email</div>
-                <div class="col">@Model.Client.Email</div>
-            </div>
+                        <dt class="col-sm-4 text-muted">Payment Method</dt>
+                        <dd class="col-sm-8">@Model.PaymentMethod</dd>
 
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Phone</div>
-                <div class="col">@Model.Client.PhoneNumber</div>
-            </div>
+                        <dt class="col-sm-4 text-muted">Payment Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @paymentBadge rounded-pill">@Model.PaymentStatus</span>
+                            <div class="btn-group ms-2">
+                                <button class="btn btn-link btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#paymentStatusModal">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-link btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#paymentDetailsModal">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </dd>
 
-            <div class="row mb-2 pb-2 border-bottom">
-                <div class="col">Address</div>
-                <div class="col">@Model.Client.Address</div>
-            </div>
-
-            <div class="row mb-2">
-                <div class="col">Registered At</div>
-                <div class="col">@Model.Client.CreatedAt</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th style="width: 100px">Description</th>
-            <th></th>
-            <th style="width:100px">Units</th>
-            <th style="width:100px">Amount</th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            decimal subtotal = 0;
-            foreach (var item in Model.Items)
-            {
-                subtotal += item.UnitPrice * item.Quantity;
-
-                <tr>
-                    <td>
-                        <img src="/products/@item.Product.ImageFileName" width="100" alt="..." />
-                    </td>
-                    <td>
-                        <h4>
-                            <a style="text-decoration: none; color: inherit;" asp-controller="Store"
-                               asp-action="Details" asp-route-id="@item.Product.Id">
-                                @item.Product.Name
+                        <dt class="col-sm-4 text-muted">Order Status</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @orderBadge rounded-pill">@Model.OrderStatus</span>
+                            <a href="#" class="btn btn-link btn-sm ms-2" data-bs-toggle="modal" data-bs-target="#orderStatusModal">
+                                <i class="fas fa-edit"></i>
                             </a>
-                        </h4>
-                        @item.Product.Category<br>
-                        @(item.UnitPrice)$
-                    </td>
-                    <td>@item.Quantity</td>
-                    <td>@(item.UnitPrice * item.Quantity)$</td>
-                </tr>
-            }
-        }
-    </tbody>
-</table>
+                        </dd>
 
-
-<div class="ms-auto mb-3" style="width: 250px">
-    <div class="row">
-        <div class="col fw-bold">Subtotal:</div>
-        <div class="col text-end">@(subtotal)$</div>
-    </div>
-    <div class="row">
-        <div class="col fw-bold">Shipping Fee:</div>
-        <div class="col text-end">@(Model.ShippingFee)$</div>
-    </div>
-    <div class="row">
-        <div class="col fw-bold">Total:</div>
-        <div class="col text-end">@(subtotal + Model.ShippingFee)$</div>
-    </div>
-</div>
-
-
-<!-- Modal -->
-<div class="modal fade" id="paymentStatusModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h1 class="modal-title fs-5">Update Payment Status</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <dt class="col-sm-4 text-muted">Order Date</dt>
+                        <dd class="col-sm-8">@Model.CreatedAt.ToString("MMM dd, yyyy h:mm tt")</dd>
+                    </dl>
+                </div>
             </div>
-            <div class="modal-body">
+        </div>
 
-                <form method="get" asp-controller="AdminOrders" asp-action="Edit">
-                    <input type="hidden" name="id" value="@Model.Id" />
-                    <label>Payment Status</label>
-                    <select class="form-select mb-2" name="payment_status" asp-for="PaymentStatus">
-                        <option value="pending">pending</option>
-                        <option value="accepted">accepted</option>
-                        <option value="canceled">canceled</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </form>
+        <!-- Client Details Card -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 h-100">
+                <div class="card-header bg-light py-3">
+                    <h5 class="card-title mb-0"><i class="fas fa-user me-2"></i>Client Information</h5>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4 text-muted">Name</dt>
+                        <dd class="col-sm-8">
+                            <a class="text-decoration-none" asp-controller="Users" asp-action="Details"
+                               asp-route-id="@Model.Client.Id">
+                                @Model.Client.FirstName @Model.Client.LastName
+                            </a>
+                        </dd>
 
+                        <dt class="col-sm-4 text-muted">Orders</dt>
+                        <dd class="col-sm-8">@ViewBag.NumOrders</dd>
+
+                        <dt class="col-sm-4 text-muted">Email</dt>
+                        <dd class="col-sm-8">@Model.Client.Email</dd>
+
+                        <dt class="col-sm-4 text-muted">Phone</dt>
+                        <dd class="col-sm-8">@Model.Client.PhoneNumber</dd>
+
+                        <dt class="col-sm-4 text-muted">Address</dt>
+                        <dd class="col-sm-8">@Model.Client.Address</dd>
+
+                        <dt class="col-sm-4 text-muted">Registered</dt>
+                        <dd class="col-sm-8">@Model.Client.CreatedAt.ToString("MMM dd, yyyy")</dd>
+                    </dl>
+                </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+    </div>
+
+    <!-- Order Items Table -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-header bg-light py-3">
+            <h5 class="card-title mb-0"><i class="fas fa-boxes me-2"></i>Order Items</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="text-muted">Product</th>
+                            <th class="text-muted text-center">Price</th>
+                            <th class="text-muted text-center">Qty</th>
+                            <th class="text-muted text-end">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            decimal subtotal = 0;
+                            foreach (var item in Model.Items)
+                            {
+                                subtotal += item.UnitPrice * item.Quantity;
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="/products/@item.Product.ImageFileName"
+                                                 class="rounded me-3" width="80" alt="@item.Product.Name">
+                                            <div>
+                                                <a class="text-decoration-none"
+                                                   asp-controller="Store"
+                                                   asp-action="Details"
+                                                   asp-route-id="@item.Product.Id">
+                                                    @item.Product.Name
+                                                </a>
+                                                <div class="text-muted small">@item.Product.Category</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center">@item.UnitPrice.ToString("C")</td>
+                                    <td class="text-center">@item.Quantity</td>
+                                    <td class="text-end fw-semibold">@((item.UnitPrice * item.Quantity).ToString("C"))</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="card shadow-sm border-0 mt-4">
+        <div class="card-body">
+            <div class="row justify-content-end">
+                <div class="col-12 col-md-6">
+                    <dl class="row mb-0">
+                        <dt class="col-6 text-muted text-end">Subtotal:</dt>
+                        <dd class="col-6 text-end">@subtotal.ToString("C")</dd>
+
+                        <dt class="col-6 text-muted text-end">Shipping:</dt>
+                        <dd class="col-6 text-end">@Model.ShippingFee.ToString("C")</dd>
+
+                        <dt class="col-6 text-muted text-end">Total:</dt>
+                        <dd class="col-6 text-end fw-bold fs-5">@((subtotal + Model.ShippingFee).ToString("C"))</dd>
+                    </dl>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
-
-<!-- Modal -->
-<div class="modal fade" id="orderStatusModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
+<!-- Payment Status Modal -->
+<div class="modal fade" id="paymentStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Update Order Status</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Update Payment Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-
                 <form method="get" asp-controller="AdminOrders" asp-action="Edit">
                     <input type="hidden" name="id" value="@Model.Id" />
-                    <label>Order Status</label>
-                    <select class="form-select mb-2" name="order_status" asp-for="OrderStatus">
-                        <option value="created">created</option>
-                        <option value="accepted">accepted</option>
-                        <option value="canceled">canceled</option>
-                        <option value="shipped">shipped</option>
-                        <option value="delivered">delivered</option>
-                        <option value="returned">returned</option>
-                        <option value="deleted">deleted</option>
-                    </select>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <div class="mb-3">
+                        <label class="form-label">Payment Status</label>
+                        <select class="form-select" name="payment_status" required>
+                            @foreach (var status in new[] { "pending", "accepted", "canceled" })
+                            {
+                                <option value="@status" selected="@(status == Model.PaymentStatus)">
+                                    @status
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
                 </form>
-
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Order Status Modal -->
+<div class="modal fade" id="orderStatusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="get" asp-controller="AdminOrders" asp-action="Edit">
+                    <input type="hidden" name="id" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Order Status</label>
+                        <select class="form-select" name="order_status" required>
+                            @foreach (var status in new[] { "created", "accepted", "shipped", "delivered", "returned", "deleted", "canceled" })
+                            {
+                                <option value="@status" selected="@(status == Model.OrderStatus)">
+                                    @status
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-
-<!-- Modal -->
-<div class="modal fade" id="paymentDetailsModal" tabindex="-1" aria-hidden="true">
+<!-- Payment Details Modal -->
+<div class="modal fade" id="paymentDetailsModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Payment Details</h1>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">Payment Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-
-                <p style="white-space: pre-wrap; font-family: monospace">@Html.Raw(Model.PaymentDetails)</p>
-
+                <pre class="p-3 bg-light rounded">@Html.Raw(Model.PaymentDetails)</pre>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -288,3 +268,11 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <!-- Required for Bootstrap Modals -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome for Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+}

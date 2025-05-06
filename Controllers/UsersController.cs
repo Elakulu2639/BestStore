@@ -1,8 +1,10 @@
 ﻿using BestStore.Models;
+using BestStore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace BestStore.Controllers
 {
@@ -12,12 +14,14 @@ namespace BestStore.Controllers
     {
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly ApplicationDbContext _context;
         private readonly int pageSize = 5;
 
-        public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+        public UsersController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ApplicationDbContext context)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
+            _context = context;
         }
         public IActionResult Index(int? pageIndex)
         {
@@ -131,9 +135,10 @@ namespace BestStore.Controllers
             var result = await userManager.DeleteAsync(appUser);
             if (result.Succeeded)
             {
+               
+
                 return RedirectToAction("Index", "Users");
             }
-
             TempData["ErrorMessage"] = "Unable to delete this account: " + result.Errors.First().Description;
             return RedirectToAction("Details", "Users", new { id });
         }

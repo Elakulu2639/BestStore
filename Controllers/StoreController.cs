@@ -88,28 +88,19 @@ namespace BestStore.Controllers
         {
             var product = context.Products.Find(id);
             if (product == null)
-            {
-                return RedirectToAction("Index", "Store");
-            }
+                return RedirectToAction("Index");
 
             string? userId = null;
             if (User.Identity.IsAuthenticated)
-            {
                 userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            }
 
-
-            // get frequently bought together products
+            // Try personalized first (if userId is null, service treats as global)
             var recommendations = recommendationService.GetFrequentlyBoughtTogether(id, userId);
-
-            // If there are no user-specific recommendations, try global recommendations
-            if (User.Identity.IsAuthenticated && !recommendations.Any())
-            {
-                recommendations = recommendationService.GetFrequentlyBoughtTogether(id);
-            }
+            // Always fallback to global if none found
+            if (!recommendations.Any())
+                recommendations = recommendationService.GetFrequentlyBoughtTogether(id, null);
 
             ViewData["Recommendations"] = recommendations;
-
             return View(product);
         }
     }

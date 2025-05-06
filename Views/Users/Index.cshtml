@@ -1,75 +1,99 @@
 ﻿@model List<ApplicationUser>
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<ApplicationUser> UserManager
-@{
+
+<div class="container-lg">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-primary">User Management</h2>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="fw-semibold text-muted">Name</th>
+                            <th class="fw-semibold text-muted">Email</th>
+                            <th class="fw-semibold text-muted">Phone</th>
+                            <th class="fw-semibold text-muted">Role</th>
+                            <th class="fw-semibold text-muted">Joined</th>
+                            <th class="fw-semibold text-muted text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            var roles = await UserManager.GetRolesAsync(user);
+                            var roleColor = roles switch
+                            {
+                                var r when r.Contains("admin") => "danger",
+                                var r when r.Contains("seller") => "warning",
+                                var r when r.Contains("client") => "info",
+                                _ => "secondary"
+                            };
+
+                            <tr class="position-relative">
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="ms-2">
+                                            <div class="fw-semibold">@user.FirstName @user.LastName</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-truncate" style="max-width: 200px">@user.Email</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>
+                                    <span class="badge bg-@roleColor bg-opacity-10 text-@roleColor rounded-pill">
+                                        @string.Join(", ", roles)
+                                    </span>
+                                </td>
+                                <td class="text-muted small">@user.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="text-end">
+                                    <a class="btn btn-primary btn-sm text-decoration-none"
+                                       asp-controller="Users"
+                                       asp-action="Details"
+                                       asp-route-id="@user.Id">
+                                         Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <nav class="mt-4" aria-label="User pagination">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.PageIndex ? "active" : "")">
+                    <a class="page-link"
+                       asp-route-pageIndex="@i"
+                       aria-label="Page @i">
+                        @i
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+</div>
+
+@section Styles {
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+    </style>
 }
 
-<h2 class="text-center mb-5">List of Users</h2>
+@section Scripts {
+    <!-- Bootstrap 5 JS Bundle (required for dropdowns) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Phone</th>
-            <th>Role</th>
-            <th>Created At</th>
-            <th>Action</th>
-        </tr>
-    </thead>
+    <!-- Font Awesome Icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+}
 
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@(user.FirstName + " " + user.LastName)</td>
-                <td>@user.Email</td>
-                <td>@user.PhoneNumber</td>
-                <td>
-                    @{
-                        var roles = await UserManager.GetRolesAsync(user);
-                        var rolesStr = String.Join(", ", roles);
-
-
-                        string color = "bg-secondary";
-                        if (roles.Contains("admin"))
-                        {
-                            color = "bg-danger";
-                        }
-                        else if (roles.Contains("seller"))
-                        {
-                            color = "bg-warning text-dark";
-                        }
-                        else if (roles.Contains("client"))
-                        {
-                            color = "bg-info text-dark";
-                        }
-
-
-                        <span class="badge rounded-pill @color">@rolesStr</span>
-                    }
-                </td>
-                <td>@user.CreatedAt.ToString("MM/dd/yyyy")</td>
-                <td>
-                    <a class="btn btn-primary btn-sm" asp-controller="Users" asp-action="Details"
-                       asp-route-id="@user.Id">Details</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-
-<nav>
-    <ul class="pagination">
-        @for (int i = 1; i <= ViewBag.TotalPages; i++)
-        {
-            string active = "";
-            if (i == ViewBag.PageIndex) active = "active";
-
-            <li class="page-item @active">
-                <a class="page-link" asp-route-pageIndex="@i">@i</a>
-            </li>
-        }
-    </ul>
-</nav>

@@ -3,91 +3,192 @@
     var recommendations = ViewData["Recommendations"] as List<Product>;
 }
 
-
-<div class="row">
-    <div class="col-md-4 text-center">
-        <img src="/products/@Model.ImageFileName" class="img-fluid mb-3" alt="..." width="250" />
-    </div>
-    <div class="col-md-8">
-        <h3 class="mb-3">@Model.Name</h3>
-        <h3 class="mb-3">@(Model.Price)$</h3>
-        <button type="button" class="btn btn-warning btn-sm" onclick="addToCart(this, @Model.Id)">
-            Add to Cart <i class="bi bi-cart4"></i>
-        </button>
-
-        <hr />
-
-        <div class="row mb-3">
-            <div class="col-sm-3 fw-bold">
-                Brand
-            </div>
-            <div class="col-sm-9">
-                @Model.Brand
+<div class="container-lg my-5">
+    <!-- Product Details Section -->
+    <div class="row g-4">
+        <!-- Product Image -->
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0">
+                <img src="/products/@Model.ImageFileName" class="card-img-top img-fluid rounded" alt="@Model.Name" style="max-height: 400px; object-fit: contain;" />
             </div>
         </div>
+        <!-- Product Information -->
+        <div class="col-md-7">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h3 class="fw-bold text-primary mb-3">@Model.Name</h3>
+                    <h4 class="text-success mb-4">@Model.Price.ToString("C")</h4>
+                    <button type="button" class="btn btn-warning btn-sm mb-3" onclick="addToCart(this, @Model.Id)">
+                        <i class="fas fa-cart-plus me-2"></i>Add to Cart
+                    </button>
 
-        <div class="row mb-3">
-            <div class="col-sm-3 fw-bold">
-                Category
-            </div>
-            <div class="col-sm-9">
-                @Model.Category
+                    <hr />
+
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3 fw-semibold text-muted">Brand</dt>
+                        <dd class="col-sm-9">@Model.Brand</dd>
+                        <dt class="col-sm-3 fw-semibold text-muted">Category</dt>
+                        <dd class="col-sm-9">@Model.Category</dd>
+                    </dl>
+
+                    <h5 class="fw-semibold mt-4 mb-2">Description</h5>
+                    <p class="text-muted" style="white-space: pre-line;">@Model.Description</p>
+                </div>
             </div>
         </div>
-
-
-        <div class="fw-bold">Description</div>
-        <div style="white-space: pre-line">@Model.Description</div>
     </div>
-</div>
 
-
-@if (User.Identity.IsAuthenticated)
-{
-    @if (recommendations?.Any() == true)
-    {
-        <div class="mt-5">
-            <h3>Frequently Bought Together</h3>
-            <div class="row g-3">
-                @foreach (var product in recommendations)
+    <!-- Recommendations Section -->
+    <div class="mt-5">
+        <h4 class="fw-bold text-primary mb-4">Frequently Bought Together</h4>
+        @if (recommendations?.Any() == true)
+        {
+            <div class="row g-4">
+                @foreach (var prod in recommendations.Take(4)) // Ensure max 4 items
                 {
-                    <div class="col-md-3">
-                        <div class="card h-100">
-                            <img src="/products/@product.ImageFileName"
-                                 class="card-img-top"
-                                 alt="@product.Name"
-                                 style="height: 200px; object-fit: contain">
+                    <div class="col-md-3 col-sm-6">
+                        <div class="card h-100 shadow-sm border-0 transition-all hover-scale">
+                            <img src="/products/@prod.ImageFileName" class="card-img-top rounded-top" alt="@prod.Name" style="height: 200px; object-fit: contain; padding: 1rem; background-color: #f8f9fa;" />
                             <div class="card-body">
-                                <h5 class="card-title">@product.Name</h5>
-                                <p class="card-text">@product.Price.ToString("C")</p>
-                                <a asp-controller="Store"
-                                   asp-action="Details"
-                                   asp-route-id="@product.Id"
-                                   class="btn btn-primary btn-sm">
-                                    View Details
-                                </a>
-                                <button type="button" class="btn btn-warning btn-sm" onclick="addToCart(this, @Model.Id)">
-                                    Add to Cart <i class="bi bi-cart4"></i>
-                                </button>
+                                <h5 class="card-title fw-semibold">@prod.Name</h5>
+                                <p class="card-text text-success mb-3">@prod.Price.ToString("C")</p>
+                                <div class="d-flex gap-2">
+                                    <a asp-controller="Store" asp-action="Details" asp-route-id="@prod.Id" class="btn btn-primary btn-sm">
+                                         Details
+                                    </a>
+                                    <button type="button" class="btn btn-warning btn-sm" onclick="addToCart(this, @prod.Id)">
+                                        <i class="fas fa-cart-plus me-1"></i>Add to Cart
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 }
             </div>
-        </div>
-    }
-    else
-    {
-        <div class="mt-5">
-            <p class="text-muted">No personalized recommendations available yet. Continue shopping to see suggestions!</p>
-        </div>
-    }
-}
-else
-{
-    <div class="mt-5">
-        <p class="text-muted">
-            <a asp-controller="Account" asp-action="Login">Sign in</a> to see personalized recommendations
-        </p>
+        }
+        else
+        {
+            <div class="text-center">
+                <p class="text-muted">
+                    @(User.Identity.IsAuthenticated
+                        ? "No personalized recommendations available yet. Continue shopping to see suggestions!"
+                        : "No recommendations available yet. Sign in to get personalized suggestions!")
+                </p>
+                <a asp-controller="Store" asp-action="Index" class="btn btn-outline-primary mt-2">Explore Products</a>
+            </div>
+        }
     </div>
-}                                                                                                                   
+</div>
+
+@section Styles {
+    <style>
+        .transition-all {
+            transition: all 0.2s ease-in-out;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
+        }
+
+        .card-img-top {
+            padding: 1rem;
+            background-color: #f8f9fa;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+ }
+
+
+
+
+
+@* @model Product *@
+@* @{ *@
+@*     var recommendations = ViewData["Recommendations"] as List<Product>; *@
+@* } *@
+
+
+@* <div class="row"> *@
+@*     <div class="col-md-4 text-center"> *@
+@*         <img src="/products/@Model.ImageFileName" class="img-fluid mb-3" alt="..." width="250" /> *@
+@*     </div> *@
+@*     <div class="col-md-8"> *@
+@*         <h3 class="mb-3">@Model.Name</h3> *@
+@*         <h3 class="mb-3">@(Model.Price)$</h3> *@
+@*         <button type="button" class="btn btn-warning btn-sm" onclick="addToCart(this, @Model.Id)"> *@
+@*             Add to Cart <i class="bi bi-cart4"></i> *@
+@*         </button> *@
+
+@*         <hr /> *@
+
+@*         <div class="row mb-3"> *@
+@*             <div class="col-sm-3 fw-bold"> *@
+@*                 Brand *@
+@*             </div> *@
+@*             <div class="col-sm-9"> *@
+@*                 @Model.Brand *@
+@*             </div> *@
+@*         </div> *@
+
+@*         <div class="row mb-3"> *@
+@*             <div class="col-sm-3 fw-bold"> *@
+@*                 Category *@
+@*             </div> *@
+@*             <div class="col-sm-9"> *@
+@*                 @Model.Category *@
+@*             </div> *@
+@*         </div> *@
+
+
+@*         <div class="fw-bold">Description</div> *@
+@*         <div style="white-space: pre-line">@Model.Description</div> *@
+@*     </div> *@
+@* </div> *@
+
+
+@* @if (recommendations?.Any() == true) *@
+@* { *@
+@*     <div class="mt-5"> *@
+@*         <h3>Frequently Bought Together</h3> *@
+@*         <div class="row g-3"> *@
+@*             @foreach (var prod in recommendations) *@
+@*             { *@
+@*                 <div class="col-md-3"> *@
+@*                     <div class="card h-100"> *@
+@*                         <img src="/products/@prod.ImageFileName" *@
+@*                              class="card-img-top" *@
+@*                              alt="@prod.Name" *@
+@*                              style="height: 200px; object-fit: contain" /> *@
+@*                         <div class="card-body"> *@
+@*                             <h5 class="card-title">@prod.Name</h5> *@
+@*                             <p class="card-text">@prod.Price.ToString("C")</p> *@
+@*                             <a asp-controller="Store" *@
+@*                                asp-action="Details" *@
+@*                                asp-route-id="@prod.Id" *@
+@*                                class="btn btn-primary btn-sm"> *@
+@*                                 View Details *@
+@*                             </a> *@
+@*                             <button type="button" class="btn btn-warning btn-sm" onclick="addToCart(this, @prod.Id)"> *@
+@*                                 Add to Cart <i class="bi bi-cart4"></i> *@
+@*                             </button> *@
+@*                         </div> *@
+@*                     </div> *@
+@*                 </div> *@
+@*             } *@
+@*         </div> *@
+@*     </div> *@
+@* } *@
+@* else *@
+@* { *@
+@*     <div class="mt-5"> *@
+@*         <p class="text-muted"> *@
+@*             @(User.Identity.IsAuthenticated *@
+@*                 ? "No personalized recommendations available yet. Continue shopping to see suggestions!" *@
+@*                 : "No recommendations available yet. Sign in to get personalized suggestions!") *@
+@*         </p> *@
+@*     </div> *@
+@* }                                                                                                                    *@

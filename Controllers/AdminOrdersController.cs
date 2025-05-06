@@ -3,6 +3,7 @@ using BestStore.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 
 namespace BestStore.Controllers
 {
@@ -18,56 +19,92 @@ namespace BestStore.Controllers
         }
 
         // Add Dashboard action
-        public IActionResult Dashboard()
+        public async Task<IActionResult> Dashboard()
         {
             var vm = new DashboardVM();
 
-            // Total Revenue
+            // Base Metrics
             vm.TotalRevenue = context.Orders
+                .Include(o => o.Items)
                 .Sum(o => o.Items.Sum(i => i.Quantity * i.UnitPrice) + o.ShippingFee);
 
-            // Total Orders
             vm.TotalOrders = context.Orders.Count();
+            vm.AverageOrderValue = vm.TotalOrders > 0 ? vm.TotalRevenue / vm.TotalOrders : 0;
 
-            // Average Order Value
-            vm.AverageOrderValue = vm.TotalOrders > 0
-                ? vm.TotalRevenue / vm.TotalOrders
-                : 0;
+            // Client Metrics
+            vm.ActiveClients = context.Orders
+                .Select(o => o.ClientId)
+                .Distinct()
+                .Count();
+              
 
-            // Recent Orders (last 5)
+            // Customer Segmentation (fixed)
+            var clientData = await context.Orders
+                .Include(o => o.Items)
+                .AsSplitQuery()
+                .GroupBy(o => o.ClientId)
+                .Select(g => new
+                {
+                    ClientId = g.Key,
+                    OrderCount = g.Count(),
+                    TotalItems = g.SelectMany(o => o.Items)
+                                 .Sum(i => i.Quantity * i.UnitPrice),
+                    TotalShipping = g.Sum(o => o.ShippingFee)
+                })
+                .ToListAsync();
+
+            vm.NewCustomers = clientData.Count(c => c.OrderCount == 1);
+            vm.RepeatCustomers = clientData.Count(c => c.OrderCount > 1);
+            vm.HighValueCustomers = clientData.Count(c =>
+                (c.TotalItems + c.TotalShipping) > 500
+            );
+
+            // Recent Orders
             vm.RecentOrders = context.Orders
                 .Include(o => o.Client)
                 .Include(o => o.Items)
-                .ThenInclude(i => i.Product)
+                    .ThenInclude(i => i.Product)
                 .OrderByDescending(o => o.CreatedAt)
                 .Take(5)
                 .ToList();
 
-            // Top Selling Products
+            // Top Products
             vm.TopProducts = context.OrderItems
                 .Include(oi => oi.Product)
                 .GroupBy(oi => oi.ProductId)
                 .Select(g => new ProductSales
                 {
                     Product = g.First().Product,
-                    TotalSold = g.Sum(oi => oi.Quantity)
+                    TotalSold = g.Sum(oi => oi.Quantity),
+                    TotalRevenue = g.Sum(oi => oi.Quantity * oi.UnitPrice)
                 })
-                .OrderByDescending(ps => ps.TotalSold)
+                .OrderByDescending(p => p.TotalSold)
                 .Take(5)
                 .ToList();
 
-            // Sales Over Time (last 30 days)
+            // Sales Over Time
             var startDate = DateTime.Now.AddDays(-30);
             vm.SalesOverTime = context.Orders
                 .Where(o => o.CreatedAt >= startDate)
+                .Include(o => o.Items)
                 .AsEnumerable()
                 .GroupBy(o => o.CreatedAt.Date)
                 .Select(g => new SalesData
                 {
                     Period = g.Key.ToString("yyyy-MM-dd"),
-                    Amount = g.Sum(o => o.Items.Sum(i => i.Quantity * i.UnitPrice))
+                    Amount = g.Sum(o => o.Items.Sum(i => i.Quantity * i.UnitPrice) + o.ShippingFee)
                 })
                 .OrderBy(s => s.Period)
+                .ToList();
+
+            // Order Status Distribution
+            vm.OrderStatusDistribution = context.Orders
+                .GroupBy(o => o.OrderStatus)
+                .Select(g => new OrderStatusData
+                {
+                    Status = g.Key,
+                    Count = g.Count()
+                })
                 .ToList();
 
             return View(vm);

@@ -24,7 +24,7 @@ namespace BestStore.Controllers
             //search functionality
             if (search != null)
             {
-                query = query.Where(p => p.Name.Contains(search) || p.Brand.Contains(search));
+                query = query.Where(p => p.Name.Contains(search) || p.Brand.Contains(search)|| p.Category.Contains(search));
             }
 
             //sort functionality
@@ -254,24 +254,29 @@ namespace BestStore.Controllers
 
             return RedirectToAction("Index", "Products");
         }
-
+        // Update the Delete action to handle POST requests
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Delete(int id)
         {
             var product = context.Products.Find(id);
             if (product == null)
             {
                 return RedirectToAction("Index", "Products");
-
             }
 
-            string imageFullPath = environment.WebRootPath + "/products/" + product.ImageFileName;
-            System.IO.File.Delete(imageFullPath);
+            // Delete image file
+            string imageFullPath = Path.Combine(environment.WebRootPath, "products", product.ImageFileName);
+            if (System.IO.File.Exists(imageFullPath))
+            {
+                System.IO.File.Delete(imageFullPath);
+            }
 
+            // Remove from database
             context.Products.Remove(product);
-            context.SaveChanges(true);
+            context.SaveChanges();
 
             return RedirectToAction("Index", "Products");
-
         }
     }
 }
