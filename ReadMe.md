@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ﻿# BestStore - ASP.NET MVC E-commerce Platform
 
 ![ASP.NET Core](https://img.shields.io/badge/.NET-9.0-blue)
