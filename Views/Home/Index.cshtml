@@ -5,30 +5,20 @@
  } 
 
 <!-- Hero Section -->
-<section class="hero-section gradient-primary">
-    <div class="hero-decor">
-        <span class="float float-1"></span>
-        <span class="float float-2"></span>
-        <span class="float float-3"></span>
-    </div>
+<section class="hero-section" style="background: linear-gradient(135deg, #08618d 0%, #1a3c6d 100%);">
     <div class="container text-white py-5">
-        <div class="row align-items-center g-5 fade-in">
+        <div class="row align-items-center g-5">
             <div class="col-md-6">
-                <h1 class="display-3 fw-bold mb-4 animate-slide-up" style="--delay: 0ms;">Best Store for Electronics</h1>
-                <p class="lead mb-4 text-white-50 animate-slide-up" style="--delay: 120ms;">
+                <h1 class="display-3 fw-bold mb-4">Best Store for Electronics</h1>
+                <p class="lead mb-4">
                     Discover the latest electronic devices from top brands at unbeatable prices.
                 </p>
-                <div class="d-flex gap-3">
-                    <a asp-controller="Store" asp-action="Index" class="btn btn-primary btn-lg hover-raise transition-all btn-cta">
-                        <i class="fas fa-shopping-bag me-2"></i>Shop Now
-                    </a>
-                    <a asp-controller="Store" asp-action="Index" asp-route-sort="price_desc" class="btn btn-light btn-lg transition-all btn-cta">
-                        <i class="fas fa-tags me-2"></i>Explore Deals
-                    </a>
-                </div>
+                <a asp-controller="Store" asp-action="Index" class="btn btn-primary btn-lg">
+                    <i class="fas fa-shopping-bag me-2"></i>Shop Now
+                </a>
             </div>
             <div class="col-md-6 text-center">
-                <img src="/images/hero.png" class="img-fluid rounded shadow-soft parallax-item" alt="Electronics Hero" style="max-height: 420px; object-fit: contain;" />
+                <img src="/images/hero.png" class="img-fluid rounded shadow-sm" alt="Electronics Hero" style="max-height: 400px; object-fit: contain;" />
             </div>
         </div>
     </div>
@@ -38,14 +28,13 @@
 <section class="bg-light py-5">
     <div class="container">
         <h2 class="fw-bold text-primary text-center mb-5">Newest Products</h2>
-        <div class="row g-4 mb-5 fade-in">
+        <div class="row g-4 mb-5">
             @if (Model.Any())
             {
                 @foreach (var product in Model)
                 {
                     <div class="col-lg-3 col-md-6">
-                        <div class="card h-100 shadow-sm border-0 transition-all hover-scale elevate-on-hover position-relative">
-                            <span class="position-absolute top-0 start-0 m-2 badge bg-danger">New</span>
+                        <div class="card h-100 shadow-sm border-0 transition-all hover-scale">
                             <img src="/products/@product.ImageFileName" class="card-img-top rounded-top" alt="@product.Name" style="height: 200px; object-fit: contain; padding: 1rem; background-color: #f8f9fa;" />
                             <div class="card-body text-center">
                                 <h5 class="card-title fw-semibold mb-2">@product.Name</h5>
@@ -80,28 +69,10 @@
 @section Styles {
     <style>
          .hero-section { 
-             min-height: 100vh; 
+             min-height: 500px; 
              background-size: cover; 
              background-position: center; 
-             background-attachment: fixed; 
-             position: relative;
-             overflow: hidden;
-             display: flex;
-             align-items: center;
          } 
-         .hero-section::after {
-             content: "";
-             position: absolute;
-             inset: 0;
-             background: radial-gradient(1200px 600px at 80% -10%, rgba(255,255,255,0.15), transparent),
-                         radial-gradient(900px 400px at 10% 110%, rgba(255,255,255,0.10), transparent);
-             pointer-events: none;
-         }
-
-         .hero-decor .float { position: absolute; border-radius: 999px; opacity: 0.25; filter: blur(2px); }
-         .hero-decor .float-1 { width: 220px; height: 220px; background: #ffffff; top: 10%; left: -60px; animation: floatY 7s ease-in-out infinite; }
-         .hero-decor .float-2 { width: 160px; height: 160px; background: #ffffff; bottom: 15%; right: 10%; animation: floatX 9s ease-in-out infinite; }
-         .hero-decor .float-3 { width: 120px; height: 120px; background: #ffffff; top: 50%; right: -40px; animation: floatY 6s ease-in-out infinite reverse; }
 
          .transition-all { 
             transition: all 0.2s ease-in-out; 
@@ -119,26 +90,12 @@
         .btn-lg { 
              padding: 0.75rem 1.5rem; 
          } 
-        .badge.bg-danger { box-shadow: 0 6px 18px rgba(239,68,68,0.35); }
-
-         .animate-slide-up { opacity: 0; transform: translateY(8px); animation: slideUp 600ms ease forwards; animation-delay: var(--delay, 0ms); }
-         .btn-cta { position: relative; }
-         .btn-cta::after { content: ""; position: absolute; inset: -2px; border-radius: inherit; opacity: 0; box-shadow: 0 0 0 0 rgba(255,255,255,0.6); transition: opacity 250ms ease; }
-         .btn-cta:hover::after { opacity: 1; }
     </style> 
  } 
 
  @section Scripts { 
      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
      <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script> 
-     <script>
-         document.addEventListener('scroll', function(){
-             const el = document.querySelector('.parallax-item');
-             if(!el) return;
-             const offset = window.scrollY * 0.15;
-             el.style.transform = `translateY(${offset}px)`;
-         }, { passive: true });
-     </script>
  } 
 
 
